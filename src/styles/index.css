@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 全域樣式 */
+@layer base {
+  html {
+    @apply h-full;
+  }
+  
+  body {
+    @apply h-full m-0 p-0 font-sans antialiased;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+/* 自訂工具類 */
+@layer utilities {
+  /* 觸控優化 */
+  .touch-action-none {
+    touch-action: none;
+  }
+
+  /* 防止長按選取 */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* 安全區域 */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* 麻將主題樣式 */
+@layer components {
+  .mahjong-card {
+    @apply bg-white rounded-lg shadow-md p-4;
+  }
+
+  .mahjong-button {
+    @apply bg-mahjong-green text-white font-bold py-3 px-6 rounded-lg shadow-lg active:scale-95 transition-transform;
+  }
+
+  .mahjong-button-secondary {
+    @apply bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg shadow active:scale-95 transition-transform;
+  }
+
+  .mahjong-input {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mahjong-green text-lg;
+  }
+}
+
