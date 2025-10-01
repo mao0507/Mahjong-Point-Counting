@@ -588,7 +588,16 @@ function getFilteredTai1Types() {
 }
 
 function getFilteredTai2Types() {
-  return commonHandTypes.tai2
+  const tai2Types = commonHandTypes.tai2.filter(type => {
+    // 自摸時不顯示全求人和平胡
+    if (winType.value === WinType.SELF_DRAW) {
+      if ([HandType.ALL_HUMAN, HandType.COMMON].includes(type)) {
+        return false
+      }
+    }
+    return true
+  })
+  return tai2Types
 }
 
 function getFilteredTai4Types() {
