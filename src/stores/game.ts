@@ -30,6 +30,8 @@ export const useGameStore = defineStore('game', () => {
 
   /**
    * 初始化新遊戲
+   * @param playerNames - 玩家名稱陣列，長度應為4
+   * @param settings - 可選的遊戲設定，會與預設設定合併
    */
   function startNewGame(
     playerNames: string[],
@@ -67,6 +69,11 @@ export const useGameStore = defineStore('game', () => {
 
   /**
    * 新增一局記錄
+   * @param winnerPosition - 胡牌者位置
+   * @param winType - 胡牌類型（自摸/放炮/流局）
+   * @param tai - 台數
+   * @param loserPosition - 放炮者位置（放炮時必須提供）
+   * @param handType - 牌型（可選）
    */
   function addRound(
     winnerPosition: WindPosition,
@@ -179,6 +186,8 @@ export const useGameStore = defineStore('game', () => {
 
   /**
    * 取得下一位莊家（東→南→西→北）
+   * @param currentDealer - 當前莊家位置
+   * @returns 下一位莊家位置
    */
   function getNextDealer(currentDealer: WindPosition): WindPosition {
     const currentIndex = DEALER_ROTATION_ORDER.indexOf(currentDealer)
@@ -188,6 +197,8 @@ export const useGameStore = defineStore('game', () => {
 
   /**
    * 刪除指定局記錄
+   * 注意：會同時刪除該局之後的所有記錄，並重新計算分數
+   * @param roundId - 要刪除的局數ID
    */
   function deleteRound(roundId: string) {
     if (!gameState.value) return
@@ -207,6 +218,7 @@ export const useGameStore = defineStore('game', () => {
 
   /**
    * 重新計算所有玩家分數
+   * 從起始分數開始，依序套用所有局數的分數變動
    */
   function recalculateAllScores() {
     if (!gameState.value) return
@@ -231,6 +243,7 @@ export const useGameStore = defineStore('game', () => {
 
   /**
    * 結束遊戲
+   * 將遊戲狀態設為非活躍並儲存
    */
   function endGame() {
     if (!gameState.value) return
@@ -239,7 +252,8 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * 儲存遊戲狀態
+   * 儲存遊戲狀態到 localStorage
+   * 如果遊戲狀態不存在則不執行任何操作
    */
   function saveGameState() {
     if (gameState.value) {
@@ -248,7 +262,8 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * 載入遊戲狀態
+   * 從 localStorage 載入遊戲狀態
+   * 包含舊資料相容性處理，會自動補上缺失的設定值
    */
   function loadGameState() {
     const savedState = loadFromStorage<GameState>(STORAGE_KEYS.CURRENT_GAME)
@@ -302,6 +317,7 @@ export const useGameStore = defineStore('game', () => {
 
   /**
    * 清除遊戲狀態
+   * 將遊戲狀態設為 null 並從 localStorage 中刪除
    */
   function clearGameState() {
     gameState.value = null

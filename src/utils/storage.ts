@@ -4,6 +4,10 @@
 
 /**
  * 儲存資料到 localStorage
+ * @param key - 儲存的鍵名
+ * @param data - 要儲存的資料
+ * @template T - 資料類型
+ * @throws {Error} 當儲存失敗時會記錄錯誤到控制台
  */
 export function saveToStorage<T>(key: string, data: T): void {
   try {
@@ -16,6 +20,10 @@ export function saveToStorage<T>(key: string, data: T): void {
 
 /**
  * 從 localStorage 讀取資料
+ * @param key - 要讀取的鍵名
+ * @template T - 資料類型
+ * @returns 讀取到的資料，如果不存在或解析失敗則返回 null
+ * @throws {Error} 當讀取失敗時會記錄錯誤到控制台
  */
 export function loadFromStorage<T>(key: string): T | null {
   try {
@@ -31,7 +39,9 @@ export function loadFromStorage<T>(key: string): T | null {
 }
 
 /**
- * 從 localStorage 刪除資料
+ * 從 localStorage 刪除指定鍵的資料
+ * @param key - 要刪除的鍵名
+ * @throws {Error} 當刪除失敗時會記錄錯誤到控制台
  */
 export function removeFromStorage(key: string): void {
   try {
@@ -42,7 +52,8 @@ export function removeFromStorage(key: string): void {
 }
 
 /**
- * 清空 localStorage
+ * 清空 localStorage 中的所有資料
+ * @throws {Error} 當清空失敗時會記錄錯誤到控制台
  */
 export function clearStorage(): void {
   try {

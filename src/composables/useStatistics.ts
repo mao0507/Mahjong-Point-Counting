@@ -4,6 +4,9 @@ import { WIND_ORDER } from '@/constants'
 
 /**
  * 統計資料 composable
+ * 提供遊戲統計相關的計算屬性和方法
+ * @param gameState - 遊戲狀態，可以是 null
+ * @returns 包含統計資料的響應式對象
  */
 export function useStatistics(gameState: GameState | null) {
   /**
@@ -128,6 +131,9 @@ export function useStatistics(gameState: GameState | null) {
 
 /**
  * 建立空的統計資料
+ * @param position - 玩家風位
+ * @param name - 玩家名稱
+ * @returns 空的玩家統計資料對象
  */
 function createEmptyStatistics(
   position: WindPosition,

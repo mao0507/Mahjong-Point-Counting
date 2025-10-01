@@ -487,7 +487,10 @@ const previewScoreChanges = computed<ScoreChange[]>(() => {
   )
 })
 
-// 選擇胡牌者
+/**
+ * 選擇胡牌者
+ * @param position - 胡牌者的風位
+ */
 function selectWinner(position: WindPosition) {
   winnerPosition.value = position
   // 如果之前選的放炮者是現在的胡牌者，清除放炮者選擇
@@ -496,7 +499,10 @@ function selectWinner(position: WindPosition) {
   }
 }
 
-// 選擇胡牌類型
+/**
+ * 選擇胡牌類型
+ * @param type - 胡牌類型（自摸/放炮）
+ */
 function selectWinType(type: WinType) {
   winType.value = type
   // 如果選擇自摸，清除放槍者
@@ -505,28 +511,43 @@ function selectWinType(type: WinType) {
   }
 }
 
-// 選擇放槍者
+/**
+ * 選擇放槍者
+ * @param position - 放槍者的風位
+ */
 function selectLoser(position: WindPosition) {
   loserPosition.value = position
 }
 
-// 選擇牌型
+/**
+ * 選擇牌型
+ * @param type - 牌型
+ */
 function selectHandType(type: HandType) {
   handType.value = type
 }
 
-// 清除牌型
+/**
+ * 清除牌型選擇
+ */
 function clearHandType() {
   handType.value = undefined
 }
 
-// 獲取玩家名稱
+/**
+ * 獲取玩家名稱
+ * @param position - 玩家風位
+ * @returns 玩家名稱，如果找不到則返回空字串
+ */
 function getPlayerName(position: WindPosition): string {
   const player = props.players.find((p) => p.position === position)
   return player ? player.name : ''
 }
 
-// 重置表單
+/**
+ * 重置表單
+ * 清除所有選擇但保留莊家位置
+ */
 function handleReset() {
   // 莊家位置不重置，保持當前莊家
   winnerPosition.value = undefined
@@ -535,7 +556,10 @@ function handleReset() {
   handType.value = undefined
 }
 
-// 提交表單
+/**
+ * 提交表單
+ * 將當前記錄提交到遊戲狀態並重置表單
+ */
 function handleSubmit() {
   if (!canSubmit.value) return
 
@@ -552,7 +576,10 @@ function handleSubmit() {
   handleReset()
 }
 
-// 處理流局
+/**
+ * 處理流局
+ * 提交流局記錄並重置表單
+ */
 function handleDraw() {
   if (!dealerPosition.value) return
   
@@ -569,7 +596,10 @@ function handleDraw() {
   handleReset()
 }
 
-// 過濾函數：根據遊戲設定顯示相應的牌型
+/**
+ * 過濾1台牌型：根據遊戲設定顯示相應的牌型
+ * @returns 過濾後的1台牌型陣列
+ */
 function getFilteredTai1Types() {
   const tai1Types = commonHandTypes.tai1.filter(type => {
     // 三元牌和風牌需要啟用見字
@@ -587,6 +617,10 @@ function getFilteredTai1Types() {
   return tai1Types
 }
 
+/**
+ * 過濾2台牌型：自摸時不顯示全求人和平胡
+ * @returns 過濾後的2台牌型陣列
+ */
 function getFilteredTai2Types() {
   const tai2Types = commonHandTypes.tai2.filter(type => {
     // 自摸時不顯示全求人和平胡
@@ -600,6 +634,10 @@ function getFilteredTai2Types() {
   return tai2Types
 }
 
+/**
+ * 過濾4台牌型：根據遊戲設定顯示相應的牌型
+ * @returns 過濾後的4台牌型陣列
+ */
 function getFilteredTai4Types() {
   const tai4Types = commonHandTypes.tai4.filter(type => {
     // 小三元需要啟用見字
@@ -611,6 +649,10 @@ function getFilteredTai4Types() {
   return tai4Types
 }
 
+/**
+ * 過濾8台牌型：根據遊戲設定顯示相應的牌型
+ * @returns 過濾後的8台牌型陣列
+ */
 function getFilteredTai8Types() {
   const tai8Types = commonHandTypes.tai8.filter(type => {
     // 大三元、小四喜需要啟用見字
@@ -626,6 +668,10 @@ function getFilteredTai8Types() {
   return tai8Types
 }
 
+/**
+ * 過濾16台牌型：根據遊戲設定顯示相應的牌型
+ * @returns 過濾後的16台牌型陣列
+ */
 function getFilteredTai16Types() {
   const tai16Types = commonHandTypes.tai16.filter(type => {
     // 大四喜、字一色需要啟用見字
@@ -637,6 +683,10 @@ function getFilteredTai16Types() {
   return tai16Types
 }
 
+/**
+ * 過濾24台牌型：返回所有24台牌型
+ * @returns 24台牌型陣列
+ */
 function getFilteredTai24Types() {
   return commonHandTypes.tai24
 }
