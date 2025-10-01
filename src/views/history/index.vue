@@ -66,23 +66,44 @@
         </div>
 
         <div class="mb-3">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="winner-badge">
-              {{ windNames[round.winnerPosition] }}
-              {{ getPlayerName(round.winnerPosition) }}
+          <div v-if="round.dealerPosition" class="flex items-center justify-between text-xs text-gray-600 mb-1">
+            <span>莊家：{{ windNames[round.dealerPosition] }} {{ getPlayerName(round.dealerPosition) }}</span>
+            <span v-if="round.isDealerWin" class="text-orange-600 font-bold">
+              → 連莊<span v-if="round.dealerWinCount">({{ round.dealerWinCount }}連)</span>
             </span>
-            <span class="win-type-badge" :class="round.winType">
-              {{ round.winType === 'self_draw' ? '自摸' : '放炮' }}
+            <span v-else-if="round.nextDealer" class="text-blue-600">
+              → {{ windNames[round.nextDealer] }} {{ getPlayerName(round.nextDealer) }}
             </span>
-            <span class="tai-badge">{{ round.tai }} 台</span>
+          </div>
+          <div class="flex items-center gap-2 mb-2 flex-wrap">
+            <span v-if="round.winType === 'draw'" class="win-type-badge draw">
+              流局
+            </span>
+            <template v-else>
+              <span v-if="round.winType === 'self_draw'" class="winner-badge">
+                {{ getPlayerName(round.winnerPosition) }}
+                <span v-if="round.dealerPosition === round.winnerPosition" class="text-xs">（莊）</span>
+              </span>
+              <span class="win-type-badge" :class="round.winType">
+                {{ round.winType === 'self_draw' 
+                  ? '自摸' 
+                  : `${getPlayerName(round.winnerPosition)} 胡 ${getPlayerName(round.loserPosition!)}` 
+                }}
+              </span>
+              <span class="tai-badge">{{ round.tai }} 台</span>
+              <span v-if="round.handType" class="hand-type-badge">
+                {{ handTypeNames[round.handType] }}
+              </span>
+            </template>
           </div>
           
-          <div v-if="round.loserPosition" class="text-sm text-gray-600">
-            放炮者：{{ windNames[round.loserPosition] }}
-            {{ getPlayerName(round.loserPosition) }}
-          </div>
         </div>
 
+        <!-- 分數變動 -->
+        <div class="mt-2 text-xs text-gray-500">
+          計算：({{ round.baseMultiplier }}底 + {{ round.tai }}台) × {{ round.basePoint }}元/台
+        </div>
+        
         <!-- 分數變動 -->
         <div class="score-changes">
           <div
@@ -113,7 +134,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useGameStore } from '@/stores/game'
-import { WIND_NAMES } from '@/constants'
+import { WIND_NAMES, HAND_TYPE_NAMES } from '@/constants'
 import { formatDateTime, formatTime } from '@/utils/format'
 import type { WindPosition } from '@/types'
 
@@ -125,6 +146,7 @@ const gameState = computed(() => gameStore.gameState)
 const currentRounds = computed(() => gameStore.currentRounds)
 const currentSettings = computed(() => gameStore.currentSettings)
 const windNames = WIND_NAMES
+const handTypeNames = HAND_TYPE_NAMES
 
 // 反轉記錄順序（最新在上）
 const reversedRounds = computed(() => {
@@ -164,6 +186,10 @@ function handleDeleteRound(roundId: string) {
 
 .win-type-badge.discard {
   @apply bg-orange-100 text-orange-800;
+}
+
+.win-type-badge.draw {
+  @apply bg-gray-100 text-gray-800;
 }
 
 .tai-badge {

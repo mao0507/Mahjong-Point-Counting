@@ -47,16 +47,16 @@ export function calculateScoreChanges(
 
     allPositions.forEach((position) => {
       if (position === winnerPosition) {
-        // 胡牌者得分 = totalPoints * 3
+        // 胡牌者得分 = totalPoints
         scoreChanges.push({
           position,
-          change: totalPoints * 3,
+          change: totalPoints,
         })
       } else if (position === loserPosition) {
-        // 放炮者失分 = totalPoints * 3
+        // 放炮者失分 = totalPoints
         scoreChanges.push({
           position,
-          change: -totalPoints * 3,
+          change: -totalPoints,
         })
       } else {
         // 其他玩家不變

@@ -26,7 +26,7 @@
       
       <div class="flex items-center justify-between">
         <label class="text-gray-700">底分（元）</label>
-        <select v-model.number="settings.basePoint" class="px-4 py-2 border border-gray-300 rounded-lg">
+        <select v-model.number="settings.basePoint" class="select-field">
           <option :value="1">1 元</option>
           <option :value="5">5 元</option>
           <option :value="10">10 元</option>
@@ -38,7 +38,7 @@
 
       <div class="flex items-center justify-between">
         <label class="text-gray-700">底（台）</label>
-        <select v-model.number="settings.baseMultiplier" class="px-4 py-2 border border-gray-300 rounded-lg">
+        <select v-model.number="settings.baseMultiplier" class="select-field">
           <option :value="0">0 底</option>
           <option :value="1">1 底</option>
           <option :value="2">2 底</option>
@@ -54,6 +54,52 @@
           type="number"
           class="w-32 px-4 py-2 border border-gray-300 rounded-lg text-right"
         />
+      </div>
+
+      <div class="border-t border-gray-200 pt-3 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <label class="text-gray-700 font-medium">見花</label>
+            <p class="text-xs text-gray-500">每張花牌加 1 台</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              v-model="settings.enableFlowerTiles"
+              type="checkbox"
+              class="sr-only peer"
+            />
+            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-mahjong-green rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-mahjong-green"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <label class="text-gray-700 font-medium">見字</label>
+            <p class="text-xs text-gray-500">風牌、三元牌加台</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              v-model="settings.enableHonorTiles"
+              type="checkbox"
+              class="sr-only peer"
+            />
+            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-mahjong-green rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-mahjong-green"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <label class="text-gray-700 font-medium">嚦咕嚦咕</label>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              v-model="settings.enableLiuLiu"
+              type="checkbox"
+              class="sr-only peer"
+            />
+            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-mahjong-green rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-mahjong-green"></div>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -123,6 +169,21 @@ function handleStartGame() {
 .player-setup {
   max-width: 500px;
   margin: 0 auto;
+}
+
+.select-field {
+  @apply px-4 py-2 pr-10 border border-gray-300 rounded-lg;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.select-field:focus {
+  @apply outline-none ring-2 ring-mahjong-green border-mahjong-green;
 }
 </style>
 

@@ -28,6 +28,8 @@
         :players="currentPlayers"
         :current-round="gameState?.currentRoundNumber || 1"
         :total-rounds="currentRounds.length"
+        :current-dealer="gameState?.currentDealer"
+        :dealer-win-count="gameState?.dealerWinCount"
       />
 
       <!-- 計分輸入 -->
@@ -35,6 +37,10 @@
         :players="currentPlayers"
         :base-point="currentSettings.basePoint"
         :base-multiplier="currentSettings.baseMultiplier"
+        :enable-flower-tiles="currentSettings.enableFlowerTiles"
+        :enable-honor-tiles="currentSettings.enableHonorTiles"
+        :current-dealer="gameState?.currentDealer"
+        :dealer-win-count="gameState?.dealerWinCount"
         @submit="handleAddRound"
       />
 
@@ -47,15 +53,26 @@
             :key="round.id"
             class="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm"
           >
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="text-gray-500">第{{ round.roundNumber }}局</span>
-              <span class="font-bold text-mahjong-green">
-                {{ windNames[round.winnerPosition] }}
+              <span v-if="round.winType === 'draw'" class="text-gray-600">
+                流局
               </span>
-              <span class="text-gray-600">
-                {{ round.winType === 'self_draw' ? '自摸' : '放炮' }}
-              </span>
-              <span class="font-bold text-mahjong-gold">{{ round.tai }}台</span>
+              <template v-else>
+                <span v-if="round.winType === 'self_draw'" class="font-bold text-mahjong-green">
+                  {{ windNames[round.winnerPosition] }}
+                </span>
+                <span class="text-gray-600">
+                  {{ round.winType === 'self_draw' 
+                    ? '自摸' 
+                    : `${getPlayerName(round.winnerPosition)} 胡 ${getPlayerName(round.loserPosition)}` 
+                  }}
+                </span>
+                <span class="font-bold text-mahjong-gold">{{ round.tai }}台</span>
+                <span class="font-bold text-blue-600">
+                  {{ calculateRoundPoints(round, round.winType) }}元
+                </span>
+              </template>
             </div>
             <button
               @click="handleDeleteRound(round.id)"
@@ -89,7 +106,7 @@ import PlayerSetup from '@/components/game/PlayerSetup.vue'
 import ScoreBoard from '@/components/game/ScoreBoard.vue'
 import ScoreInput from '@/components/game/ScoreInput.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
-import type { GameSettings, WindPosition, WinType } from '@/types'
+import type { GameSettings, WindPosition, WinType, HandType } from '@/types'
 
 const gameStore = useGameStore()
 
@@ -110,6 +127,23 @@ const recentRounds = computed(() => {
   return [...currentRounds.value].reverse().slice(0, 5)
 })
 
+// 獲取玩家名稱
+function getPlayerName(position?: WindPosition): string {
+  if (!position) return ''
+  const player = gameState.value?.players.find((p) => p.position === position)
+  return player ? player.name : ''
+}
+
+// 計算每局的點數
+function calculateRoundPoints(round: any, winType?: string): number {
+  const basePoints = (round.baseMultiplier + round.tai) * round.basePoint
+  // 自摸時顯示三家總計
+  if (winType === 'self_draw') {
+    return basePoints * 3
+  }
+  return basePoints
+}
+
 // 初始化
 onMounted(() => {
   gameStore.loadGameState()
@@ -128,16 +162,19 @@ function handleStartGame(playerNames: string[], settings: GameSettings) {
 
 // 新增一局記錄
 function handleAddRound(data: {
+  dealerPosition?: WindPosition
   winnerPosition: WindPosition
   winType: WinType
   tai: number
   loserPosition?: WindPosition
+  handType?: HandType
 }) {
   gameStore.addRound(
     data.winnerPosition,
     data.winType,
     data.tai,
-    data.loserPosition
+    data.loserPosition,
+    data.handType
   )
 }
 

@@ -10,7 +10,10 @@
         v-for="player in players"
         :key="player.id"
         class="score-card mahjong-card"
-        :class="{ 'highlight': highlightedPosition === player.position }"
+        :class="{ 
+          'highlight': highlightedPosition === player.position,
+          'dealer-card': currentDealer === player.position
+        }"
       >
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-2">
@@ -18,6 +21,9 @@
               {{ windNames[player.position] }}
             </div>
             <span class="font-bold text-gray-800 truncate">{{ player.name }}</span>
+            <span v-if="currentDealer === player.position" class="text-xs bg-red-500 text-white px-2 py-0.5 rounded font-bold">
+              莊<span v-if="dealerWinCount && dealerWinCount > 0">{{ dealerWinCount }}</span>
+            </span>
           </div>
         </div>
         
@@ -40,12 +46,19 @@
     <div class="stats-info text-center text-sm text-gray-600">
       <p>第 {{ currentRound }} 局</p>
       <p v-if="totalRounds > 0">總共 {{ totalRounds }} 局</p>
+      <p v-if="currentDealer && dealerWinCount !== undefined" class="mt-2">
+        <span class="inline-flex items-center gap-1 bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-bold text-xs">
+          <span>莊家：{{ windNames[currentDealer] }}</span>
+          <span v-if="dealerWinCount > 0" class="text-red-600">{{ dealerWinCount }}連勝</span>
+          <span v-else>新莊</span>
+        </span>
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+// import { computed } from 'vue'
 import { WIND_NAMES } from '@/constants'
 import type { Player, WindPosition } from '@/types'
 
@@ -54,11 +67,16 @@ interface Props {
   currentRound: number
   totalRounds?: number
   highlightedPosition?: WindPosition
+  currentDealer?: WindPosition
+  dealerWinCount?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   totalRounds: 0,
 })
+
+// 確保 props 被使用（避免 TypeScript 警告）
+void props
 
 const windNames = WIND_NAMES
 
@@ -79,6 +97,11 @@ function formatScore(score: number): string {
 .score-card.highlight {
   @apply ring-2 ring-mahjong-gold bg-yellow-50;
   transform: scale(1.02);
+}
+
+.score-card.dealer-card {
+  @apply border-4 border-yellow-400;
+  box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.3), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 </style>
 

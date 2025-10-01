@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type {
-  GameState,
-  Player,
-  GameRound,
-  GameSettings,
-  WindPosition,
-  WinType,
-} from '@/types'
-import { DEFAULT_GAME_SETTINGS, STORAGE_KEYS, WIND_ORDER } from '@/constants'
+import { WindPosition, WinType } from '@/types'
+import type { GameState, Player, GameRound, GameSettings } from '@/types'
+import type { ScoreChange } from '@/types'
+import {
+  DEFAULT_GAME_SETTINGS,
+  STORAGE_KEYS,
+  WIND_ORDER,
+  DEALER_ROTATION_ORDER,
+} from '@/constants'
 import { calculateScoreChanges, calculateTotalScore } from '@/utils/calculator'
 import {
   saveToStorage,
@@ -56,6 +56,8 @@ export const useGameStore = defineStore('game', () => {
         ...settings,
       },
       currentRoundNumber: 1,
+      currentDealer: WindPosition.EAST, // 預設從東開始
+      dealerWinCount: 0, // 莊家連勝次數初始為 0
       isActive: true,
     }
 
@@ -70,7 +72,8 @@ export const useGameStore = defineStore('game', () => {
     winnerPosition: WindPosition,
     winType: WinType,
     tai: number,
-    loserPosition?: WindPosition
+    loserPosition?: WindPosition,
+    handType?: any
   ) {
     if (!gameState.value) {
       console.error('遊戲狀態不存在，無法新增記錄')
@@ -88,36 +91,71 @@ export const useGameStore = defineStore('game', () => {
       baseMultiplier: settings.baseMultiplier,
     })
 
-    // 計算分數變動
-    const scoreChanges = calculateScoreChanges(
-      winnerPosition,
-      winType,
-      loserPosition,
-      tai,
-      settings.basePoint,
-      settings.baseMultiplier
-    )
+    // 判斷是否流局
+    const isDraw = winType === 'draw'
+    const currentDealerPosition = gameState.value.currentDealer
 
-    console.log('計算的分數變動：', scoreChanges)
+    let scoreChanges: ScoreChange[] = []
+    let isDealerWin = false
+    let nextDealerPosition = currentDealerPosition
 
-    // 更新玩家分數
-    scoreChanges.forEach(({ position, change }) => {
-      const player = gameState.value!.players.find(
-        (p) => p.position === position
+    if (isDraw) {
+      // 流局：沒有分數變動，莊家連勝+1
+      scoreChanges = []
+      isDealerWin = true // 視為莊家勝利（連莊）
+      nextDealerPosition = currentDealerPosition // 莊家不變
+      gameState.value.dealerWinCount += 1 // 連勝次數 +1
+    } else {
+      // 正常胡牌
+      // 計算分數變動
+      scoreChanges = calculateScoreChanges(
+        winnerPosition,
+        winType,
+        loserPosition,
+        tai,
+        settings.basePoint,
+        settings.baseMultiplier
       )
-      if (player) {
-        player.totalScore = calculateTotalScore(player.totalScore, change)
+
+      console.log('計算的分數變動：', scoreChanges)
+
+      // 更新玩家分數
+      scoreChanges.forEach(({ position, change }) => {
+        const player = gameState.value!.players.find(
+          (p) => p.position === position
+        )
+        if (player) {
+          player.totalScore = calculateTotalScore(player.totalScore, change)
+        }
+      })
+
+      // 判斷是否莊家胡牌
+      isDealerWin = winnerPosition === currentDealerPosition
+
+      // 更新莊家連勝次數
+      if (isDealerWin) {
+        gameState.value.dealerWinCount += 1 // 莊家胡牌，連勝次數 +1
       }
-    })
+
+      // 計算下一局莊家
+      nextDealerPosition = isDealerWin
+        ? currentDealerPosition // 連莊
+        : getNextDealer(currentDealerPosition) // 換莊
+    }
 
     // 新增記錄
     const round: GameRound = {
       id: `round_${Date.now()}`,
       roundNumber: currentRoundNumber,
       timestamp: Date.now(),
+      dealerPosition: currentDealerPosition,
+      nextDealer: nextDealerPosition,
+      isDealerWin,
+      dealerWinCount: gameState.value.dealerWinCount, // 記錄當前連勝次數
       winnerPosition,
       winType,
       loserPosition,
+      handType,
       tai,
       basePoint: settings.basePoint,
       baseMultiplier: settings.baseMultiplier,
@@ -127,8 +165,25 @@ export const useGameStore = defineStore('game', () => {
     gameState.value.rounds.push(round)
     gameState.value.currentRoundNumber += 1
 
+    // 更新莊家
+    gameState.value.currentDealer = nextDealerPosition
+
+    // 如果換莊，重置連勝次數
+    if (!isDealerWin) {
+      gameState.value.dealerWinCount = 0
+    }
+
     // 儲存到本地
     saveGameState()
+  }
+
+  /**
+   * 取得下一位莊家（東→南→西→北）
+   */
+  function getNextDealer(currentDealer: WindPosition): WindPosition {
+    const currentIndex = DEALER_ROTATION_ORDER.indexOf(currentDealer)
+    const nextIndex = (currentIndex + 1) % DEALER_ROTATION_ORDER.length
+    return DEALER_ROTATION_ORDER[nextIndex]
   }
 
   /**
@@ -141,7 +196,7 @@ export const useGameStore = defineStore('game', () => {
     if (roundIndex === -1) return
 
     // 移除該局之後的所有記錄
-    const removedRounds = gameState.value.rounds.splice(roundIndex)
+    gameState.value.rounds.splice(roundIndex)
 
     // 重新計算所有玩家分數
     recalculateAllScores()
@@ -205,6 +260,33 @@ export const useGameStore = defineStore('game', () => {
       ) {
         savedState.settings.baseMultiplier =
           DEFAULT_GAME_SETTINGS.baseMultiplier
+      }
+
+      // 相容舊資料：如果 settings 沒有 enableFlowerTiles，補上預設值
+      if (savedState.settings.enableFlowerTiles === undefined) {
+        savedState.settings.enableFlowerTiles =
+          DEFAULT_GAME_SETTINGS.enableFlowerTiles
+      }
+
+      // 相容舊資料：如果 settings 沒有 enableHonorTiles，補上預設值
+      if (savedState.settings.enableHonorTiles === undefined) {
+        savedState.settings.enableHonorTiles =
+          DEFAULT_GAME_SETTINGS.enableHonorTiles
+      }
+
+      // 相容舊資料：如果 settings 沒有 enableLiuLiu，補上預設值
+      if (savedState.settings.enableLiuLiu === undefined) {
+        savedState.settings.enableLiuLiu = DEFAULT_GAME_SETTINGS.enableLiuLiu
+      }
+
+      // 相容舊資料：如果沒有 currentDealer，預設為東
+      if (!savedState.currentDealer) {
+        savedState.currentDealer = WindPosition.EAST
+      }
+
+      // 相容舊資料：如果沒有 dealerWinCount，預設為 0
+      if (savedState.dealerWinCount === undefined) {
+        savedState.dealerWinCount = 0
       }
 
       // 相容舊資料：如果 rounds 沒有 baseMultiplier，補上當時的設定值

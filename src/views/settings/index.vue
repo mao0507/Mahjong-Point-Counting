@@ -21,6 +21,22 @@
             <span class="text-gray-600">目前局數</span>
             <span class="text-gray-800 font-bold">{{ currentRounds.length }} 局</span>
           </div>
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-600">底分設定</span>
+            <span class="text-gray-800">{{ currentSettings.basePoint }} 元 / {{ currentSettings.baseMultiplier }} 底</span>
+          </div>
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-600">見花</span>
+            <span class="text-gray-800">{{ currentSettings.enableFlowerTiles ? '啟用' : '停用' }}</span>
+          </div>
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-600">見字</span>
+            <span class="text-gray-800">{{ currentSettings.enableHonorTiles ? '啟用' : '停用' }}</span>
+          </div>
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-600">嚦咕嚦咕</span>
+            <span class="text-gray-800">{{ currentSettings.enableLiuLiu ? '啟用' : '停用' }}</span>
+          </div>
           
           <button
             @click="showConfirmClear = true"
@@ -85,15 +101,26 @@
             其他三家各付 (底 + 台) × 底分
           </div>
           <div>
-            <span class="font-bold text-gray-800">放炮：</span>
-            放炮者支付全額 [(底 + 台) × 底分] × 3
+            <span class="font-bold text-gray-800">放槍：</span>
+            放槍者支付全額 [(底 + 台) × 底分] × 3
+          </div>
+          <div class="pt-2 border-t border-gray-200">
+            <span class="font-bold text-gray-800">見花（可選）：</span>
+            每張花牌加 1 台（梅蘭竹菊、春夏秋冬）
+          </div>
+          <div>
+            <span class="font-bold text-gray-800">見字（可選）：</span>
+            拿到風牌、三元牌（中發白）的刻子或槓子時加台
+          </div>
+          <div>
+            <span class="font-bold text-gray-800">嚦咕嚦咕（可選）：</span>
           </div>
           <div class="pt-2 border-t border-gray-200">
             <span class="font-bold text-gray-800">範例：</span>
             2 底、底分 10 元，胡 3 台
             <ul class="list-disc list-inside mt-1 ml-2">
               <li>自摸：胡牌者得 150 元 [(2+3)×10×3]，其他各失 50 元</li>
-              <li>放炮：胡牌者得 150 元，放炮者失 150 元</li>
+              <li>放槍：胡牌者得 150 元，放槍者失 150 元</li>
             </ul>
           </div>
         </div>
@@ -133,6 +160,7 @@ onMounted(() => {
 const isGameActive = computed(() => gameStore.isGameActive)
 const gameState = computed(() => gameStore.gameState)
 const currentRounds = computed(() => gameStore.currentRounds)
+const currentSettings = computed(() => gameStore.currentSettings)
 
 // 清除遊戲
 function handleClearGame() {
