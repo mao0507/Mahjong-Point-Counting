@@ -254,19 +254,32 @@
             <span class="text-gray-700">
               <template v-if="isDealerWinner">莊家自摸</template>
               <template v-else-if="isDealerLoser">胡莊家</template>
-              <template v-else-if="winType === WinType.SELF_DRAW && !isDealerWinner">莊家台（其他玩家自摸）</template>
+              <template v-else-if="winType === WinType.SELF_DRAW && !isDealerWinner">莊家台（莊家額外支付）</template>
               （{{ currentDealerWinCount }}連勝）
             </span>
             <span class="font-bold text-orange-600">+{{ dealerExtraTai }} 台</span>
           </div>
           
-          <!-- 總台數與點數 -->
+          <!-- 台數與點數 -->
           <div class="pt-2 border-t-2 border-gray-300 space-y-1">
-            <div class="flex justify-between items-center">
+            <!-- 台數顯示 -->
+            <div v-if="isDealerWinner" class="flex justify-between items-center">
               <span class="text-gray-800 font-bold text-base">總台數</span>
               <span class="font-bold text-mahjong-green text-xl">{{ calculatedTai }} 台</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div v-else class="space-y-1">
+              <div class="flex justify-between items-center">
+                <span class="text-gray-700 text-sm">莊家台數</span>
+                <span class="font-bold text-mahjong-green">{{ calculatedTai }} 台</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-700 text-sm">閒家台數</span>
+                <span class="font-bold text-mahjong-green">{{ baseTai }} 台</span>
+              </div>
+            </div>
+            
+            <!-- 點數計算 -->
+            <div v-if="isDealerWinner" class="flex justify-between items-center">
               <span class="text-gray-700 text-xs">
                 ({{ baseMultiplier }}底 + {{ calculatedTai }}台) × {{ basePoint }}元
                 <span v-if="winType === WinType.SELF_DRAW"> × 3</span>
@@ -275,8 +288,22 @@
                 {{ totalPoints.toLocaleString() }} 元
               </span>
             </div>
-            <div v-if="winType === WinType.SELF_DRAW" class="text-xs text-gray-500 text-center pt-1">
-              三家總計（各付 {{ perPlayerPoints.toLocaleString() }} 元）
+            <div v-else class="flex justify-between items-center">
+              <span class="text-gray-700 text-xs">
+                莊家{{ dealerPayment.toLocaleString() }}元 + 閒家{{ nonDealerPayment.toLocaleString() }}元 × 2
+              </span>
+              <span class="font-bold text-blue-600 text-lg">
+                {{ (dealerPayment + nonDealerPayment * 2).toLocaleString() }} 元
+              </span>
+            </div>
+            <div v-if="winType === WinType.SELF_DRAW" class="text-xs text-gray-500 text-center pt-1 space-y-1">
+              <div v-if="isDealerWinner">
+                三家總計（各付 {{ perPlayerPoints.toLocaleString() }} 元）
+              </div>
+              <div v-else>
+                <div>莊家付 {{ dealerPayment.toLocaleString() }} 元</div>
+                <div>閒家各付 {{ nonDealerPayment.toLocaleString() }} 元</div>
+              </div>
             </div>
             <div v-else class="text-xs text-gray-500 text-center pt-1">
               被胡者支付
@@ -449,8 +476,8 @@ const calculatedTai = computed(() => {
   
   // 莊家台數計算：
   // 1. 莊家自摸：加莊家台數
-  // 2. 其他玩家自摸：加莊家台數（莊家需要額外支付）
-  // 3. 胡莊家：加莊家台數
+  // 2. 胡莊家：加莊家台數
+  // 3. 其他玩家自摸：也加莊家台數（總台數包含莊家台，但分數計算時分別處理）
   if (isDealerWinner.value || isDealerLoser.value || (winType.value === WinType.SELF_DRAW && !isDealerWinner.value)) {
     total += dealerExtraTai.value
   }
@@ -481,6 +508,37 @@ const perPlayerPoints = computed(() => {
   return singlePoints.value
 })
 
+// 計算莊家支付金額（其他玩家自摸時）
+const dealerPayment = computed(() => {
+  if (winType.value !== WinType.SELF_DRAW || isDealerWinner.value) {
+    return singlePoints.value
+  }
+  
+  // 其他玩家自摸時，莊家支付包含莊家台的完整金額
+  return (props.baseMultiplier + calculatedTai.value) * props.basePoint
+})
+
+// 計算閒家支付金額（其他玩家自摸時）
+const nonDealerPayment = computed(() => {
+  if (winType.value !== WinType.SELF_DRAW || isDealerWinner.value) {
+    return singlePoints.value
+  }
+  
+  // 其他玩家自摸時，閒家只支付基本台數（不含莊家台）
+  const baseTai = calculatedTai.value - dealerExtraTai.value
+  return (props.baseMultiplier + baseTai) * props.basePoint
+})
+
+// 計算基本台數（閒家台數，不含莊家台）
+const baseTai = computed(() => {
+  if (winType.value !== WinType.SELF_DRAW || isDealerWinner.value) {
+    return calculatedTai.value
+  }
+  
+  // 其他玩家自摸時，閒家台數不包含莊家台
+  return calculatedTai.value - dealerExtraTai.value
+})
+
 // 是否可以預覽
 const canPreview = computed(() => {
   if (!winnerPosition.value || !winType.value) return false
@@ -503,7 +561,9 @@ const previewScoreChanges = computed<ScoreChange[]>(() => {
     loserPosition.value,
     calculatedTai.value!, // 使用計算後的台數
     props.basePoint,
-    props.baseMultiplier
+    props.baseMultiplier,
+    dealerPosition.value,
+    currentDealerWinCount.value
   )
 })
 

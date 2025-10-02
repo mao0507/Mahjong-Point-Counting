@@ -121,7 +121,9 @@ export const useGameStore = defineStore('game', () => {
         loserPosition,
         tai,
         settings.basePoint,
-        settings.baseMultiplier
+        settings.baseMultiplier,
+        currentDealerPosition,
+        gameState.value.dealerWinCount
       )
 
       console.log('計算的分數變動：', scoreChanges)
