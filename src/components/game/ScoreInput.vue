@@ -250,8 +250,13 @@
           </div>
           
           <!-- 莊家台數 -->
-          <div v-if="(isDealerWinner || isDealerLoser) && dealerExtraTai > 0" class="flex justify-between items-center">
-            <span class="text-gray-700">{{ isDealerWinner ? '莊家' : '胡莊家' }}（{{ currentDealerWinCount }}連勝）</span>
+          <div v-if="dealerExtraTai > 0" class="flex justify-between items-center">
+            <span class="text-gray-700">
+              <template v-if="isDealerWinner">莊家自摸</template>
+              <template v-else-if="isDealerLoser">胡莊家</template>
+              <template v-else-if="winType === WinType.SELF_DRAW && !isDealerWinner">莊家台（其他玩家自摸）</template>
+              （{{ currentDealerWinCount }}連勝）
+            </span>
             <span class="font-bold text-orange-600">+{{ dealerExtraTai }} 台</span>
           </div>
           
@@ -442,8 +447,11 @@ const calculatedTai = computed(() => {
   // 加上牌型台數
   total += handTypeTai.value
   
-  // 莊家自摸或被胡時加上莊家台數
-  if (isDealerWinner.value || isDealerLoser.value) {
+  // 莊家台數計算：
+  // 1. 莊家自摸：加莊家台數
+  // 2. 其他玩家自摸：加莊家台數（莊家需要額外支付）
+  // 3. 胡莊家：加莊家台數
+  if (isDealerWinner.value || isDealerLoser.value || (winType.value === WinType.SELF_DRAW && !isDealerWinner.value)) {
     total += dealerExtraTai.value
   }
   
