@@ -1,6 +1,6 @@
 {
   "name": "mahjong-point-counting",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "麻將計分工具 - Vue 3 + TypeScript + Tailwind CSS",
   "scripts": {
@@ -33,4 +33,3 @@
     "@types/node": "^20.11.25"
   }
 }
-
