@@ -1,15 +1,18 @@
-name: Deploy to Pages
+name: Deploy from Main Branch
 
-# 只在推送到main分支時觸發，而不是每次推送都觸發
+# 當main分支有更新時觸發部署
 on:
   push:
     branches:
       - main
     paths:
-      - 'dist/**'  # 只有dist目錄變更時才部署
+      - 'src/**'  # 只有源碼變更時才部署
+      - 'package.json'
+      - 'vite.config.ts'
+      - 'tailwind.config.js'
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -41,5 +44,4 @@ jobs:
         path: './dist'
     
     - name: Deploy to GitHub Pages
-      id: deployment
       uses: actions/deploy-pages@v4
