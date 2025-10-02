@@ -48,8 +48,8 @@ jobs:
           git rm -rf . 2>/dev/null || true
         fi
         
-        # 複製構建文件
-        git checkout ${GITHUB_REF#refs/tags/} -- dist/ index.html package.json README.md
+        # 複製構建文件（dist目錄已在當前工作空間中）
+        git checkout ${GITHUB_REF#refs/tags/} -- index.html package.json README.md
     
     # 提交並推送
     - name: Commit and Push

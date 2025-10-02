@@ -63,11 +63,8 @@ jobs:
       run: |
         TAG_NAME=${GITHUB_REF#refs/tags/}
         
-        # 從tag複製構建文件
-        git checkout $TAG_NAME -- dist/
-        git checkout $TAG_NAME -- index.html
-        git checkout $TAG_NAME -- package.json
-        git checkout $TAG_NAME -- README.md
+        # 從tag複製其他文件（dist目錄已在當前工作空間中）
+        git checkout $TAG_NAME -- index.html package.json README.md
         
         # 確保dist目錄存在
         if [ ! -d "dist" ]; then

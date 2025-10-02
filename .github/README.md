@@ -108,9 +108,16 @@ tags:
 4. **Git操作失敗**: 如果遇到 `git rm -rf .` 錯誤，使用 `robust-release.yml`
 
 ### 工作流程選擇
+- **auto-release.yml**: 最新穩定版本，完全修復Git操作問題（強烈推薦）
 - **release.yml**: 完整功能，包含GitHub Release創建
 - **simple-release.yml**: 簡化版本，只推送構建文件
-- **robust-release.yml**: 穩健版本，避免Git操作問題（推薦）
+- **robust-release.yml**: 穩健版本，避免Git操作問題
+
+### 故障排除
+如果遇到Git操作錯誤，建議：
+1. 刪除或重命名其他工作流程文件
+2. 只保留 `auto-release.yml` 工作流程
+3. 重新推送tag觸發構建
 
 ## 🔒 權限要求
 
