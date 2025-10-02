@@ -1,0 +1,35 @@
+{
+  "name": "mahjong-point-counting",
+  "version": "1.0.6",
+  "type": "module",
+  "description": "麻將計分工具 - Vue 3 + TypeScript + Tailwind CSS",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit",
+    "version:patch": "node scripts/version-manager.js patch",
+    "version:minor": "node scripts/version-manager.js minor",
+    "version:major": "node scripts/version-manager.js major",
+    "version:custom": "node scripts/version-manager.js custom",
+    "release:patch": "./scripts/quick-release.sh patch",
+    "release:minor": "./scripts/quick-release.sh minor",
+    "release:major": "./scripts/quick-release.sh major",
+    "test:release": "./scripts/test-release.sh"
+  },
+  "dependencies": {
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0",
+    "pinia": "^2.1.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.4.2",
+    "vite": "^5.1.6",
+    "vue-tsc": "^2.0.6",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.35",
+    "autoprefixer": "^10.4.18",
+    "@types/node": "^20.11.25"
+  }
+}
