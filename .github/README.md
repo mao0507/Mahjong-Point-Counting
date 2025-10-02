@@ -50,8 +50,29 @@ git push origin v1.0.0
 ## 🔧 配置說明
 
 ### 觸發條件
+**重要**：GitHub Actions **僅在推送tag時觸發**，不會在普通git push時執行：
+
+```bash
+# ✅ 會觸發GitHub Actions
+git tag v1.0.0
+git push origin v1.0.0
+
+# ❌ 不會觸發GitHub Actions
+git push origin main
+git push origin develop
+```
+
+**支持的tag格式**：
 - 當您推送以 `v` 開頭的tag時會自動觸發
 - 例如：`v1.0.0`, `v1.2.3`, `v2.0.0-beta`
+
+**觸發配置**：
+```yaml
+on:
+  push:
+    tags:
+      - 'v*'  # 只匹配以v開頭的tag，不包含branches配置
+```
 
 ### 構建環境
 - **運行環境**: Ubuntu Latest

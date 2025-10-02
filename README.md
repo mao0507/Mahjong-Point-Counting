@@ -59,14 +59,16 @@ npm run type-check
 本專案配置了GitHub Actions，支援自動化構建和部署：
 
 ### 觸發條件
-當您推送tag到GitHub時，會自動觸發構建流程：
+**重要**：GitHub Actions **僅在推送tag時觸發**，不會在普通git push時執行：
 
 ```bash
-# 創建tag
+# ✅ 會觸發GitHub Actions
 git tag v1.0.0
-
-# 推送tag到GitHub
 git push origin v1.0.0
+
+# ❌ 不會觸發GitHub Actions
+git push origin main
+git push origin develop
 ```
 
 ### 自動化流程

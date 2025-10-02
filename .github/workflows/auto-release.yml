@@ -1,10 +1,11 @@
 name: Auto Release
 
-# 觸發條件：當創建tag時執行
+# 觸發條件：僅在推送tag時執行，不會在普通git push時觸發
 on:
   push:
     tags:
-      - 'v*'  # 匹配所有以v開頭的tag
+      - 'v*'  # 匹配所有以v開頭的tag，如 v1.0.0, v1.2.3, v2.0.0-beta
+    # 注意：沒有branches配置，所以普通分支推送不會觸發此工作流程
 
 jobs:
   build-and-deploy:
