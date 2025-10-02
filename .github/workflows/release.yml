@@ -1,0 +1,167 @@
+name: Release Build
+
+# 觸發條件：當創建tag時執行
+on:
+  push:
+    tags:
+      - 'v*'  # 匹配所有以v開頭的tag，如 v1.0.0
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 步驟1: 檢出代碼
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 獲取完整的git歷史
+    
+    # 步驟2: 設置Node.js環境
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    # 步驟3: 安裝依賴
+    - name: Install dependencies
+      run: npm ci
+    
+    # 步驟4: 運行類型檢查
+    - name: Type check
+      run: npm run type-check
+    
+    # 步驟5: 構建項目
+    - name: Build project
+      run: npm run build
+    
+    # 步驟6: 配置Git用戶信息
+    - name: Configure Git
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+    
+    # 步驟7: 獲取tag信息
+    - name: Get tag info
+      id: tag_info
+      run: |
+        echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        echo "tag_message=$(git tag -l --format='%(contents:subject)' ${GITHUB_REF#refs/tags/})" >> $GITHUB_OUTPUT
+    
+    # 步驟8: 切換到release分支或創建新的release分支
+    - name: Switch to release branch
+      run: |
+        # 檢查release分支是否存在
+        if git show-ref --verify --quiet refs/remotes/origin/release; then
+          echo "Release branch exists, switching to it"
+          git checkout -B release origin/release
+        else
+          echo "Release branch does not exist, creating it"
+          git checkout --orphan release
+          git rm -rf .
+        fi
+    
+    # 步驟9: 複製構建文件到release分支
+    - name: Copy build files
+      run: |
+        # 從主分支複製構建文件
+        git checkout ${GITHUB_REF#refs/tags/} -- dist/
+        git checkout ${GITHUB_REF#refs/tags/} -- index.html
+        git checkout ${GITHUB_REF#refs/tags/} -- package.json
+        git checkout ${GITHUB_REF#refs/tags/} -- README.md
+        
+        # 確保dist目錄存在
+        if [ ! -d "dist" ]; then
+          echo "Build failed or dist directory not found"
+          exit 1
+        fi
+    
+    # 步驟10: 創建發布說明文件
+    - name: Create release notes
+      run: |
+        cat > RELEASE_NOTES.md << EOF
+        # Release ${GITHUB_REF#refs/tags/}
+        
+        **發布時間**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        
+        **Tag信息**: ${{ steps.tag_info.outputs.tag_name }}
+        
+        **提交信息**: ${{ steps.tag_info.outputs.tag_message }}
+        
+        ## 構建信息
+        - 構建時間: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        - 構建環境: GitHub Actions (Ubuntu Latest)
+        - Node.js版本: $(node --version)
+        - NPM版本: $(npm --version)
+        
+        ## 文件結構
+        \`\`\`
+        $(find dist -type f | head -20)
+        \`\`\`
+        
+        ## 部署說明
+        此版本已準備好部署到生產環境。
+        
+        ### 本地測試
+        \`\`\`bash
+        npm run preview
+        \`\`\`
+        EOF
+    
+    # 步驟11: 提交更改
+    - name: Commit changes
+      run: |
+        git add .
+        git commit -m "Release ${GITHUB_REF#refs/tags/}
+
+        - 構建時間: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        - 基於tag: ${GITHUB_REF#refs/tags/}
+        - 提交信息: ${{ steps.tag_info.outputs.tag_message }}"
+    
+    # 步驟12: 推送到release分支
+    - name: Push to release branch
+      run: |
+        git push origin release
+    
+    # 步驟13: 創建GitHub Release
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          ## 麻將計分工具 Release ${{ github.ref_name }}
+          
+          **發布時間**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          ### 主要功能
+          - 🎮 快速記錄每局麻將分數
+          - 📊 即時計算玩家總分
+          - 📝 完整歷史記錄與統計分析
+          - 💾 本地儲存，資料不遺失
+          - 📱 手機優先設計，觸控友善
+          
+          ### 部署信息
+          - 構建分支: release
+          - 構建狀態: ✅ 成功
+          - 構建時間: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          ### 下載
+          構建文件已推送到 `release` 分支，可直接部署使用。
+        draft: false
+        prerelease: false
+    
+    # 步驟14: 輸出構建信息
+    - name: Build summary
+      run: |
+        echo "🎉 構建完成！"
+        echo "📦 Tag: ${GITHUB_REF#refs/tags/}"
+        echo "🌿 Release分支: release"
+        echo "📁 構建文件: dist/"
+        echo "📋 發布說明: RELEASE_NOTES.md"
+        echo ""
+        echo "構建文件列表:"
+        find dist -type f | head -10

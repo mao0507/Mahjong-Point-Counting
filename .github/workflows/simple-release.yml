@@ -1,0 +1,49 @@
+name: Simple Release
+
+# 觸發條件：當創建tag時執行
+on:
+  push:
+    tags:
+      - 'v*'  # 匹配所有以v開頭的tag
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 檢出代碼
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    # 設置Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    # 安裝依賴並構建
+    - name: Install and Build
+      run: |
+        npm ci
+        npm run build
+    
+    # 配置Git
+    - name: Configure Git
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+    
+    # 切換到release分支
+    - name: Switch to release branch
+      run: |
+        git checkout -B release || git checkout --orphan release
+        git rm -rf . || true
+        git checkout ${GITHUB_REF#refs/tags/} -- dist/ index.html package.json README.md
+    
+    # 提交並推送
+    - name: Commit and Push
+      run: |
+        git add .
+        git commit -m "Release ${GITHUB_REF#refs/tags/} - $(date)"
+        git push origin release
