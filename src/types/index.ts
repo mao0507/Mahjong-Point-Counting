@@ -94,7 +94,7 @@ export interface GameRound {
   winnerPosition: WindPosition // 胡牌者位置
   winType: WinType // 胡牌類型
   loserPosition?: WindPosition // 放炮者位置（如果是放炮）
-  handType?: HandType // 和牌牌型（可選）
+  handTypes?: HandType[] // 和牌牌型陣列（可選，支持多選）
   tai: number // 台數
   basePoint: number // 底分
   baseMultiplier: number // 底（基礎台數）

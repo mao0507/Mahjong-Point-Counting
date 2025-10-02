@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { WindPosition, WinType } from '@/types'
+import { WindPosition, WinType, HandType } from '@/types'
 import type { GameState, Player, GameRound, GameSettings } from '@/types'
 import type { ScoreChange } from '@/types'
 import {
@@ -73,14 +73,14 @@ export const useGameStore = defineStore('game', () => {
    * @param winType - 胡牌類型（自摸/放炮/流局）
    * @param tai - 台數
    * @param loserPosition - 放炮者位置（放炮時必須提供）
-   * @param handType - 牌型（可選）
+   * @param handTypes - 牌型陣列（可選，支持多選）
    */
   function addRound(
     winnerPosition: WindPosition,
     winType: WinType,
     tai: number,
     loserPosition?: WindPosition,
-    handType?: any
+    handTypes?: HandType[]
   ) {
     if (!gameState.value) {
       console.error('遊戲狀態不存在，無法新增記錄')
@@ -162,7 +162,7 @@ export const useGameStore = defineStore('game', () => {
       winnerPosition,
       winType,
       loserPosition,
-      handType,
+      handTypes,
       tai,
       basePoint: settings.basePoint,
       baseMultiplier: settings.baseMultiplier,

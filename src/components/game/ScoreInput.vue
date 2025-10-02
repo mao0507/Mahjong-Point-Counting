@@ -103,7 +103,7 @@
             :key="type"
             @click="selectHandType(type)"
             class="hand-type-button"
-            :class="{ active: handType === type }"
+            :class="{ active: handTypes.includes(type) }"
           >
             {{ handTypeNames[type] }}
           </button>
@@ -119,7 +119,7 @@
             :key="type"
             @click="selectHandType(type)"
             class="hand-type-button"
-            :class="{ active: handType === type }"
+            :class="{ active: handTypes.includes(type) }"
           >
             {{ handTypeNames[type] }}
           </button>
@@ -135,7 +135,7 @@
             :key="type"
             @click="selectHandType(type)"
             class="hand-type-button"
-            :class="{ active: handType === type }"
+            :class="{ active: handTypes.includes(type) }"
           >
             {{ handTypeNames[type] }}
           </button>
@@ -151,7 +151,7 @@
             :key="type"
             @click="selectHandType(type)"
             class="hand-type-button"
-            :class="{ active: handType === type }"
+            :class="{ active: handTypes.includes(type) }"
           >
             {{ handTypeNames[type] }}
           </button>
@@ -167,7 +167,7 @@
             :key="type"
             @click="selectHandType(type)"
             class="hand-type-button"
-            :class="{ active: handType === type }"
+            :class="{ active: handTypes.includes(type) }"
           >
             {{ handTypeNames[type] }}
           </button>
@@ -183,7 +183,7 @@
             :key="type"
             @click="selectHandType(type)"
             class="hand-type-button"
-            :class="{ active: handType === type }"
+            :class="{ active: handTypes.includes(type) }"
           >
             {{ handTypeNames[type] }}
           </button>
@@ -199,7 +199,7 @@
             :key="type"
             @click="selectHandType(type)"
             class="hand-type-button"
-            :class="{ active: handType === type }"
+            :class="{ active: handTypes.includes(type) }"
           >
             {{ handTypeNames[type] }}
           </button>
@@ -211,7 +211,7 @@
         <button
           @click="clearHandType"
           class="hand-type-button-clear"
-          :class="{ active: !handType }"
+          :class="{ active: handTypes.length === 0 }"
         >
           不記錄牌型
         </button>
@@ -234,9 +234,19 @@
           </div>
           
           <!-- 牌型台數 -->
-          <div v-if="handType && handTypeTai > 0" class="flex justify-between items-center">
-            <span class="text-gray-700">{{ handTypeNames[handType] }}</span>
-            <span class="font-bold text-purple-600">+{{ handTypeTai }} 台</span>
+          <div v-if="handTypes.length > 0 && handTypeTai > 0" class="space-y-1">
+            <div 
+              v-for="type in handTypes" 
+              :key="type"
+              class="flex justify-between items-center"
+            >
+              <span class="text-gray-700">{{ handTypeNames[type] }}</span>
+              <span class="font-bold text-purple-600">+{{ HAND_TYPE_TAI[type] }} 台</span>
+            </div>
+            <div v-if="handTypes.length > 1" class="flex justify-between items-center pt-1 border-t border-gray-200">
+              <span class="text-gray-700 font-medium">牌型總計</span>
+              <span class="font-bold text-purple-600">+{{ handTypeTai }} 台</span>
+            </div>
           </div>
           
           <!-- 莊家台數 -->
@@ -355,7 +365,7 @@ interface Emits {
       winType: WinType
       tai: number
       loserPosition?: WindPosition
-      handType?: HandType
+      handTypes?: HandType[]
     }
   ): void
 }
@@ -385,7 +395,7 @@ const dealerPosition = ref<WindPosition>() // 莊家位置
 const winnerPosition = ref<WindPosition>()
 const winType = ref<WinType>()
 const loserPosition = ref<WindPosition>()
-const handType = ref<HandType>()
+const handTypes = ref<HandType[]>([])
 
 // 監聽 currentDealer 變化，自動更新莊家位置
 watch(defaultDealer, (newDealer) => {
@@ -407,10 +417,12 @@ const isDealerLoser = computed(() => {
   return loserPosition.value === dealerPosition.value
 })
 
-// 當前選擇的牌型台數
+// 當前選擇的牌型台數總和
 const handTypeTai = computed(() => {
-  if (!handType.value) return 0
-  return HAND_TYPE_TAI[handType.value] || 0
+  if (!handTypes.value || handTypes.value.length === 0) return 0
+  return handTypes.value.reduce((total, type) => {
+    return total + (HAND_TYPE_TAI[type] || 0)
+  }, 0)
 })
 
 // 莊家額外台數計算：2N + 1（N 為當前連莊次數）
@@ -520,18 +532,25 @@ function selectLoser(position: WindPosition) {
 }
 
 /**
- * 選擇牌型
+ * 選擇/取消選擇牌型（多選）
  * @param type - 牌型
  */
 function selectHandType(type: HandType) {
-  handType.value = type
+  const index = handTypes.value.indexOf(type)
+  if (index > -1) {
+    // 如果已選中，則取消選擇
+    handTypes.value.splice(index, 1)
+  } else {
+    // 如果未選中，則添加到選擇列表
+    handTypes.value.push(type)
+  }
 }
 
 /**
  * 清除牌型選擇
  */
 function clearHandType() {
-  handType.value = undefined
+  handTypes.value = []
 }
 
 /**
@@ -553,7 +572,7 @@ function handleReset() {
   winnerPosition.value = undefined
   winType.value = undefined
   loserPosition.value = undefined
-  handType.value = undefined
+  handTypes.value = []
 }
 
 /**
@@ -569,7 +588,7 @@ function handleSubmit() {
     winType: winType.value!,
     tai: calculatedTai.value!, // 使用計算後的台數（包含莊家加台）
     loserPosition: loserPosition.value,
-    handType: handType.value,
+    handTypes: handTypes.value,
   })
 
   // 提交後重置表單
@@ -589,7 +608,7 @@ function handleDraw() {
     winType: WinType.DRAW,
     tai: 0,
     loserPosition: undefined,
-    handType: undefined,
+    handTypes: undefined,
   })
   
   // 流局後重置表單

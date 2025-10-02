@@ -69,6 +69,9 @@
                   }}
                 </span>
                 <span class="font-bold text-mahjong-gold">{{ round.tai }}台</span>
+                <span v-if="round.handTypes && round.handTypes.length > 0" class="text-xs text-purple-600">
+                  ({{ round.handTypes.map(type => handTypeNames[type]).join('+') }})
+                </span>
                 <span class="font-bold text-blue-600">
                   {{ calculateRoundPoints(round, round.winType) }}元
                 </span>
@@ -101,7 +104,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useGameStore } from '@/stores/game'
-import { WIND_NAMES } from '@/constants'
+import { WIND_NAMES, HAND_TYPE_NAMES } from '@/constants'
 import PlayerSetup from '@/components/game/PlayerSetup.vue'
 import ScoreBoard from '@/components/game/ScoreBoard.vue'
 import ScoreInput from '@/components/game/ScoreInput.vue'
@@ -121,6 +124,7 @@ const currentPlayers = computed(() => gameStore.currentPlayers)
 const currentRounds = computed(() => gameStore.currentRounds)
 const currentSettings = computed(() => gameStore.currentSettings)
 const windNames = WIND_NAMES
+const handTypeNames = HAND_TYPE_NAMES
 
 // 最近 5 筆記錄
 const recentRounds = computed(() => {
@@ -167,14 +171,14 @@ function handleAddRound(data: {
   winType: WinType
   tai: number
   loserPosition?: WindPosition
-  handType?: HandType
+  handTypes?: HandType[]
 }) {
   gameStore.addRound(
     data.winnerPosition,
     data.winType,
     data.tai,
     data.loserPosition,
-    data.handType
+    data.handTypes
   )
 }
 

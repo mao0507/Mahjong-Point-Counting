@@ -91,8 +91,8 @@
                 }}
               </span>
               <span class="tai-badge">{{ round.tai }} 台</span>
-              <span v-if="round.handType" class="hand-type-badge">
-                {{ handTypeNames[round.handType] }}
+              <span v-if="round.handTypes && round.handTypes.length > 0" class="hand-type-badge">
+                {{ round.handTypes.map(type => handTypeNames[type]).join('+') }}
               </span>
             </template>
           </div>
