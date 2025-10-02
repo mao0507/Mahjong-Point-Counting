@@ -87,7 +87,26 @@ git push origin v1.0.0
 ./scripts/test-release.sh v2.0.0
 ```
 
-詳細說明請參考 [.github/README.md](.github/README.md)
+### 版本管理
+使用自動化版本管理腳本：
+
+```bash
+# 使用npm腳本（推薦）
+npm run version:patch    # 修補版本 (1.0.0 → 1.0.1)
+npm run version:minor    # 次要版本 (1.0.0 → 1.1.0)
+npm run version:major    # 主要版本 (1.0.0 → 2.0.0)
+
+# 或直接使用腳本
+./scripts/version-manager.sh patch
+node scripts/version-manager.js minor
+
+# 快速發布
+npm run release:patch "修復重要bug"
+```
+
+詳細說明請參考：
+- [.github/README.md](.github/README.md) - GitHub Actions說明
+- [scripts/README.md](scripts/README.md) - 版本管理腳本說明
 
 ## 專案結構
 

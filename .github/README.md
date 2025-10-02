@@ -105,6 +105,12 @@ tags:
 1. **構建失敗**: 檢查Node.js版本和依賴
 2. **推送失敗**: 確認有推送權限
 3. **Release創建失敗**: 檢查GITHUB_TOKEN權限
+4. **Git操作失敗**: 如果遇到 `git rm -rf .` 錯誤，使用 `robust-release.yml`
+
+### 工作流程選擇
+- **release.yml**: 完整功能，包含GitHub Release創建
+- **simple-release.yml**: 簡化版本，只推送構建文件
+- **robust-release.yml**: 穩健版本，避免Git操作問題（推薦）
 
 ## 🔒 權限要求
 

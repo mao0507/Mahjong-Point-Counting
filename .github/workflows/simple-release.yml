@@ -37,8 +37,18 @@ jobs:
     # 切換到release分支
     - name: Switch to release branch
       run: |
-        git checkout -B release || git checkout --orphan release
-        git rm -rf . || true
+        # 嘗試切換到現有的release分支，如果不存在則創建新的orphan分支
+        if git show-ref --verify --quiet refs/remotes/origin/release; then
+          echo "Switching to existing release branch"
+          git checkout -B release origin/release
+          git rm -rf . 2>/dev/null || true
+        else
+          echo "Creating new orphan release branch"
+          git checkout --orphan release
+          git rm -rf . 2>/dev/null || true
+        fi
+        
+        # 複製構建文件
         git checkout ${GITHUB_REF#refs/tags/} -- dist/ index.html package.json README.md
     
     # 提交並推送
