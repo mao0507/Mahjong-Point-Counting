@@ -5,9 +5,9 @@
  * 使用方法: node scripts/version-manager.js [major|minor|patch|custom] [custom-version]
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 // 顏色定義
 const colors = {
@@ -238,8 +238,8 @@ process.on('unhandledRejection', (reason) => {
 });
 
 // 執行主函數
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
 
-module.exports = { main };
+export { main };
