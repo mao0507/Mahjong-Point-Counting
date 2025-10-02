@@ -1,4 +1,4 @@
-name: Release Build
+ㄔㄛgitname: Release Build
 
 # 觸發條件：當創建tag時執行
 on:

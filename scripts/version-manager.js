@@ -207,22 +207,52 @@ function main() {
 
   log(`✅ Git tag已創建: ${tagName}`, 'green');
 
-  // 顯示下一步操作
+  // 自動推送
   log('', 'reset');
   log('🎉 版本更新完成！', 'purple');
   log('', 'reset');
-  log('📋 下一步操作:', 'blue');
-  log('1. 推送提交和tag到GitHub:', 'blue');
-  log(`   git push origin main`, 'yellow');
-  log(`   git push origin ${tagName}`, 'yellow');
-  log('', 'reset');
-  log('2. 或者一次性推送所有內容:', 'blue');
-  log(`   git push origin main --tags`, 'yellow');
-  log('', 'reset');
-  log('3. 查看GitHub Actions執行狀態:', 'blue');
-  log('   https://github.com/[您的用戶名]/[您的倉庫名]/actions', 'yellow');
-  log('', 'reset');
 
+  try {
+    log('🚀 自動推送提交到main分支...', 'yellow');
+    execCommand('git push origin main');
+    log('✅ 提交推送成功！', 'green');
+
+    log('🚀 自動推送tag到GitHub...', 'yellow');
+    execCommand(`git push origin ${tagName}`);
+    log('✅ Tag推送成功！', 'green');
+
+    log('', 'reset');
+    log('🎉 所有更改已推送到GitHub！', 'green');
+    log('🔔 GitHub Actions將自動開始執行構建和部署流程', 'blue');
+    log('', 'reset');
+
+    log('📊 版本更新摘要:', 'cyan');
+    log(`   舊版本: ${currentVersion}`, 'reset');
+    log(`   新版本: ${newVersion}`, 'reset');
+    log(`   更新類型: ${versionType}`, 'reset');
+    log(`   Tag: ${tagName}`, 'reset');
+    log('   狀態: ✅ 已推送到GitHub', 'green');
+    log('', 'reset');
+
+    log('🔗 查看GitHub Actions執行狀態:', 'blue');
+    log('   https://github.com/[您的用戶名]/[您的倉庫名]/actions', 'yellow');
+
+  } catch (error) {
+    log('❌ 推送失敗，請手動推送:', 'red');
+    log('', 'reset');
+    log('📋 手動推送命令:', 'blue');
+    log('1. 推送提交和tag到GitHub:', 'blue');
+    log('   git push origin main', 'yellow');
+    log(`   git push origin ${tagName}`, 'yellow');
+    log('', 'reset');
+    log('2. 或者一次性推送所有內容:', 'blue');
+    log('   git push origin main --tags', 'yellow');
+    log('', 'reset');
+    log('3. 查看GitHub Actions執行狀態:', 'blue');
+    log('   https://github.com/[您的用戶名]/[您的倉庫名]/actions', 'yellow');
+  }
+
+  log('', 'reset');
   log('🎉 腳本執行完成！', 'green');
 }
 

@@ -162,35 +162,22 @@ echo "3. 查看GitHub Actions執行狀態:"
 echo -e "   ${YELLOW}https://github.com/[您的用戶名]/[您的倉庫名]/actions${NC}"
 echo ""
 
-# 詢問是否立即推送
-echo -e "${BLUE}是否要立即推送所有更改到GitHub? (y/N)${NC}"
-read -r response
-if [[ "$response" =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}🚀 推送提交到main分支...${NC}"
-    git push origin main
-    
-    echo -e "${YELLOW}🚀 推送tag到GitHub...${NC}"
-    git push origin "v${NEW_VERSION}"
-    
-    echo -e "${GREEN}✅ 所有更改已推送到GitHub！${NC}"
-    echo -e "${BLUE}🎉 GitHub Actions將自動開始執行構建和部署流程${NC}"
-    echo ""
-    echo -e "${CYAN}📊 版本更新摘要:${NC}"
-    echo -e "   舊版本: ${CURRENT_VERSION}"
-    echo -e "   新版本: ${NEW_VERSION}"
-    echo -e "   更新類型: ${VERSION_TYPE}"
-    echo -e "   Tag: v${NEW_VERSION}"
-    echo -e "   狀態: ✅ 已推送到GitHub"
-else
-    echo -e "${BLUE}ℹ️  您可以稍後手動推送更改${NC}"
-    echo ""
-    echo -e "${CYAN}📊 版本更新摘要:${NC}"
-    echo -e "   舊版本: ${CURRENT_VERSION}"
-    echo -e "   新版本: ${NEW_VERSION}"
-    echo -e "   更新類型: ${VERSION_TYPE}"
-    echo -e "   Tag: v${NEW_VERSION}"
-    echo -e "   狀態: ⏳ 等待推送"
-fi
+# 自動推送
+echo -e "${YELLOW}🚀 自動推送提交到main分支...${NC}"
+git push origin main
+
+echo -e "${YELLOW}🚀 自動推送tag到GitHub...${NC}"
+git push origin "v${NEW_VERSION}"
+
+echo -e "${GREEN}✅ 所有更改已推送到GitHub！${NC}"
+echo -e "${BLUE}🎉 GitHub Actions將自動開始執行構建和部署流程${NC}"
+echo ""
+echo -e "${CYAN}📊 版本更新摘要:${NC}"
+echo -e "   舊版本: ${CURRENT_VERSION}"
+echo -e "   新版本: ${NEW_VERSION}"
+echo -e "   更新類型: ${VERSION_TYPE}"
+echo -e "   Tag: v${NEW_VERSION}"
+echo -e "   狀態: ✅ 已推送到GitHub"
 
 echo ""
 echo -e "${GREEN}🎉 腳本執行完成！${NC}"

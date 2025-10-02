@@ -30,7 +30,12 @@ git commit -m "chore: bump version to ${NEW_VERSION}"
 git tag -a "v${NEW_VERSION}" -m "${RELEASE_MESSAGE} ${NEW_VERSION}"
 
 echo -e "${YELLOW}Tag已創建: v${NEW_VERSION}${NC}"
-echo ""
-echo "推送命令:"
-echo "git push origin main"
-echo "git push origin v${NEW_VERSION}"
+
+# 自動推送
+echo -e "${BLUE}🚀 自動推送提交...${NC}"
+git push origin main
+
+echo -e "${BLUE}🚀 自動推送tag...${NC}"
+git push origin "v${NEW_VERSION}"
+
+echo -e "${GREEN}✅ 發布完成！GitHub Actions將自動執行構建流程${NC}"
