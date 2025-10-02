@@ -6,7 +6,7 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig(({ command, mode }) => {
   // 根據環境設置base路徑
   const base = mode === 'production' ? '/Mahjong-Point-Counting/' : '/'
-  
+
   return {
     plugins: [vue()],
     base,

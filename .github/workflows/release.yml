@@ -35,10 +35,7 @@ jobs:
     
     # 步驟4: 構建項目
     - name: Build project
-      run: |
-        # 設置GitHub Pages的base路徑
-        echo "VITE_BASE_PATH=/Mahjong-Point-Counting/" >> $GITHUB_ENV
-        npm run build
+      run: npm run build
     
     # 步驟5: 配置Git
     - name: Configure Git
