@@ -29,6 +29,7 @@
 ### 自動化腳本
 - **版本管理**：自動版本號更新和Git tag創建
 - **GitHub Actions**：自動構建和部署
+- **GitHub Pages**：自動部署到靜態網站
 - **測試工具**：觸發條件和發布流程測試
 
 ### 程式碼品質
@@ -91,7 +92,13 @@ git push origin develop
 2. ✅ 執行類型檢查
 3. ✅ 構建項目
 4. ✅ 推送到 `release` 分支
-5. ✅ 創建GitHub Release
+5. ✅ 部署到GitHub Pages
+6. ✅ 創建GitHub Release
+
+### 訪問網站
+部署完成後，可在以下網址訪問：
+- **GitHub Pages**：`https://您的GitHub用戶名.github.io/Mahjong-Point-Counting/`
+- **Release分支**：`https://github.com/您的GitHub用戶名/Mahjong-Point-Counting/tree/release`
 
 ### 測試部署流程
 使用提供的測試腳本：
@@ -112,9 +119,9 @@ git push origin develop
 
 ```bash
 # 使用npm腳本（推薦）
-npm run version:patch    # 修補版本 (1.0.4 → 1.0.5)
-npm run version:minor    # 次要版本 (1.0.4 → 1.1.0)
-npm run version:major    # 主要版本 (1.0.4 → 2.0.0)
+npm run version:patch    # 修補版本 (1.0.7 → 1.0.8)
+npm run version:minor    # 次要版本 (1.0.7 → 1.1.0)
+npm run version:major    # 主要版本 (1.0.7 → 2.0.0)
 npm run version:custom   # 自定義版本（需提供版本號）
 
 # 快速發布
@@ -277,5 +284,5 @@ MIT License
 
 ---
 
-**版本**：1.0.4  
-**更新日期**：2024年10月
+**版本**：1.0.7  
+**更新日期**：2025年1月
