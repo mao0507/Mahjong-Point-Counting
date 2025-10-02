@@ -128,16 +128,18 @@ tags:
 3. **Release創建失敗**: 檢查GITHUB_TOKEN權限
 4. **Git操作失敗**: 如果遇到 `git rm -rf .` 錯誤，使用 `robust-release.yml`
 
-### 工作流程選擇
-- **auto-release.yml**: 最新穩定版本，完全修復Git操作問題（強烈推薦）
-- **release.yml**: 完整功能，包含GitHub Release創建
-- **simple-release.yml**: 簡化版本，只推送構建文件
-- **robust-release.yml**: 穩健版本，避免Git操作問題
+### 主要工作流程
+- **release.yml**: 主要發布工作流程，包含完整功能（推薦使用）
+
+### 備用工作流程（已備份）
+- **release.yml.backup**: 原始版本備份
+- **simple-release.yml.backup**: 簡化版本備份
+- **robust-release.yml.backup**: 穩健版本備份
 
 ### 故障排除
-如果遇到Git操作錯誤，建議：
-1. 刪除或重命名其他工作流程文件
-2. 只保留 `auto-release.yml` 工作流程
+如果遇到問題，可以：
+1. 使用備份的工作流程文件
+2. 檢查GitHub Actions執行日誌
 3. 重新推送tag觸發構建
 
 ## 🔒 權限要求

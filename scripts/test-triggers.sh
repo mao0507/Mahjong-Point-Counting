@@ -17,10 +17,7 @@ echo ""
 
 # 檢查工作流程文件
 WORKFLOW_FILES=(
-    ".github/workflows/auto-release.yml"
     ".github/workflows/release.yml"
-    ".github/workflows/simple-release.yml"
-    ".github/workflows/robust-release.yml"
 )
 
 echo -e "${YELLOW}📋 檢查工作流程觸發配置...${NC}"
