@@ -1,0 +1,28 @@
+# 禁用GitHub Pages自動部署的工作流程
+# 如果您不需要Pages功能，請在GitHub設置中關閉Pages
+
+name: Disable Pages Auto-Deploy
+
+# 這個工作流程不會自動觸發，僅作為說明
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: '確認禁用Pages部署'
+        required: true
+        default: 'disable'
+
+jobs:
+  disable-pages:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Disable Pages Deployment
+      run: |
+        echo "要禁用GitHub Pages自動部署，請執行以下步驟："
+        echo ""
+        echo "1. 前往GitHub倉庫的 Settings 頁面"
+        echo "2. 在左側選單中找到 'Pages' 選項"
+        echo "3. 在 'Source' 部分選擇 'None'"
+        echo "4. 點擊 'Save' 保存設置"
+        echo ""
+        echo "這樣就不會再有自動的Pages部署工作流程了。"
