@@ -126,7 +126,39 @@ jobs:
         echo "Pushing to release branch..."
         git push origin release
     
-    # 步驟11: 創建GitHub Release
+    # 步驟11: 生成發布說明
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        RELEASE_TIME=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        BUILD_TIME=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        
+        cat > RELEASE_BODY.md << EOF
+        ## 麻將計分工具 Release ${{ github.ref_name }}
+        
+        **發布時間**: $RELEASE_TIME
+        
+        ### 主要功能
+        - 🎮 快速記錄每局麻將分數
+        - 📊 即時計算玩家總分
+        - 📝 完整歷史記錄與統計分析
+        - 💾 本地儲存，資料不遺失
+        - 📱 手機優先設計，觸控友善
+        
+        ### 部署信息
+        - 構建分支: release
+        - 構建狀態: ✅ 成功
+        - 構建時間: $BUILD_TIME
+        
+        ### 下載
+        構建文件已推送到 \`release\` 分支，可直接部署使用。
+        EOF
+        
+        echo "RELEASE_BODY<<EOF" >> $GITHUB_OUTPUT
+        cat RELEASE_BODY.md >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    # 步驟12: 創建GitHub Release
     - name: Create GitHub Release
       uses: actions/create-release@v1
       env:
@@ -134,29 +166,11 @@ jobs:
       with:
         tag_name: ${{ github.ref_name }}
         release_name: Release ${{ github.ref_name }}
-        body: |
-          ## 麻將計分工具 Release ${{ github.ref_name }}
-          
-          **發布時間**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          
-          ### 主要功能
-          - 🎮 快速記錄每局麻將分數
-          - 📊 即時計算玩家總分
-          - 📝 完整歷史記錄與統計分析
-          - 💾 本地儲存，資料不遺失
-          - 📱 手機優先設計，觸控友善
-          
-          ### 部署信息
-          - 構建分支: release
-          - 構建狀態: ✅ 成功
-          - 構建時間: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          
-          ### 下載
-          構建文件已推送到 `release` 分支，可直接部署使用。
+        body: ${{ steps.release_notes.outputs.RELEASE_BODY }}
         draft: false
         prerelease: false
     
-    # 步驟12: 輸出構建信息
+    # 步驟13: 輸出構建信息
     - name: Build summary
       run: |
         TAG_NAME=${GITHUB_REF#refs/tags/}
